@@ -12,41 +12,25 @@ CORS(app)
 app.static_folder = '.'  # 当前目录作为静态文件目录
 
 # Database configuration - 修复版
+# Database configuration - 最终解决方案
 import os
 
-# 在 Vercel 上使用内存数据库，在本地使用文件数据库
-is_vercel = os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV') or 'vercel' in os.environ.get('HOSTNAME', '')
-
-if is_vercel:
-    # Vercel 环境：使用内存数据库
-    DATABASE = ':memory:'
-    print("Running in Vercel environment - using in-memory database")
-else:
-    # 本地开发环境：使用文件数据库
-    DATABASE = 'notes.db'
-    print("Running in local environment - using file database")
+# 无论什么环境都使用 /tmp 目录，Vercel 和本地都支持
+DATABASE = '/tmp/notes.db'
 
 
 def get_db_connection():
     """Get database connection"""
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
-
-    # 如果是内存数据库，每次连接都需要初始化表
-    if DATABASE == ':memory:':
-        init_db(conn)
-
     return conn
 
 
-def init_db(conn=None):
+def init_db():
     """Initialize the database with notes table"""
-    should_close = False
-    if conn is None:
-        conn = get_db_connection()
-        should_close = True
-
+    conn = get_db_connection()
     cursor = conn.cursor()
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,12 +41,12 @@ def init_db(conn=None):
         )
     ''')
 
-    if should_close:
-        conn.commit()
-        conn.close()
-    else:
-        conn.commit()
+    conn.commit()
+    conn.close()
 
+
+# Initialize database on startup
+init_db()
 
 # Initialize database on startup
 init_db()
