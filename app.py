@@ -15,12 +15,16 @@ app.static_folder = '.'  # 当前目录作为静态文件目录
 import os
 
 # 在 Vercel 上使用内存数据库，在本地使用文件数据库
-if 'VERCEL' in os.environ:
-    # Vercel 环境：使用内存数据库（重启后数据丢失，但适合演示）
+is_vercel = os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV') or 'vercel' in os.environ.get('HOSTNAME', '')
+
+if is_vercel:
+    # Vercel 环境：使用内存数据库
     DATABASE = ':memory:'
+    print("Running in Vercel environment - using in-memory database")
 else:
     # 本地开发环境：使用文件数据库
     DATABASE = 'notes.db'
+    print("Running in local environment - using file database")
 
 
 def get_db_connection():
