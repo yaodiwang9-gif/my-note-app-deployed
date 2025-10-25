@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>笔记应用 - Note-Taking App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="app-title">📝 我的笔记</h1>
+                <p class="app-subtitle">简洁高效的笔记管理工具</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar - Notes List -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <button class="btn btn-primary btn-create" id="newNoteBtn">
+                        ➕ 新建笔记
+                    </button>
+                </div>
+                <div class="notes-list" id="notesList">
+                    <div class="empty-state">
+                        <p>暂无笔记</p>
+                        <p class="empty-hint">点击"新建笔记"开始创建</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Editor - Note Content -->
+            <section class="editor">
+                <div class="editor-header" id="editorHeader">
+                    <div class="editor-title-section">
+                        <input 
+                            type="text" 
+                            id="noteTitle" 
+                            class="editor-title-input" 
+                            placeholder="输入笔记标题..."
+                            disabled
+                        >
+                        <span class="editor-meta" id="editorMeta"></span>
+                    </div>
+                    <div class="editor-actions" id="editorActions" style="display: none;">
+                        <button class="btn btn-sm btn-secondary" id="saveBtn">💾 保存</button>
+                        <button class="btn btn-sm btn-danger" id="deleteBtn">🗑️ 删除</button>
+                    </div>
+                </div>
+
+                <textarea 
+                    id="noteContent" 
+                    class="editor-textarea" 
+                    placeholder="在此输入笔记内容..."
+                    disabled
+                ></textarea>
+
+                <div class="editor-footer" id="editorFooter">
+                    <div class="editor-status" id="editorStatus"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Confirmation -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h2 class="modal-title">确认删除</h2>
+            <p class="modal-message">确定要删除这条笔记吗？此操作无法撤销。</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelBtn">取消</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
