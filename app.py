@@ -11,20 +11,38 @@ CORS(app)
 # 添加：配置静态文件文件夹
 app.static_folder = '.'  # 当前目录作为静态文件目录
 
-# Database configuration
-DATABASE = os.path.join(os.path.dirname(__file__), 'notes.db')
+# Database configuration - 修复版
+import os
+
+# 在 Vercel 上使用内存数据库，在本地使用文件数据库
+if 'VERCEL' in os.environ:
+    # Vercel 环境：使用内存数据库（重启后数据丢失，但适合演示）
+    DATABASE = ':memory:'
+else:
+    # 本地开发环境：使用文件数据库
+    DATABASE = 'notes.db'
+
 
 def get_db_connection():
     """Get database connection"""
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
+
+    # 如果是内存数据库，每次连接都需要初始化表
+    if DATABASE == ':memory:':
+        init_db(conn)
+
     return conn
 
-def init_db():
+
+def init_db(conn=None):
     """Initialize the database with notes table"""
-    conn = get_db_connection()
+    should_close = False
+    if conn is None:
+        conn = get_db_connection()
+        should_close = True
+
     cursor = conn.cursor()
-    
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,21 +52,30 @@ def init_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    
-    conn.commit()
-    conn.close()
+
+    if should_close:
+        conn.commit()
+        conn.close()
+    else:
+        conn.commit()
+
 
 # Initialize database on startup
 init_db()
+
+
 @app.route('/')
 def index():
     """Serve the main frontend page"""
     return app.send_static_file('index.html')
 
+
 @app.route('/<path:path>')
 def serve_static_files(path):
     """Serve other static files (CSS, JS, etc)"""
     return app.send_static_file(path)
+
+
 # ==================== API Endpoints ====================
 
 @app.route('/api/notes', methods=['GET'])
